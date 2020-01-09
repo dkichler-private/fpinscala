@@ -7,7 +7,7 @@ which may be `Nil` or another `Cons`.
  */
 case class Cons[+A](head: A, tail: List[A]) extends List[A]
 
-object List { // `List` companion object. Contains functions for creating and working with lists.
+object List extends App { // `List` companion object. Contains functions for creating and working with lists.
   def sum(ints: List[Int]): Int = ints match { // A function that uses pattern matching to add up a list of integers
     case Nil => 0 // The sum of the empty list is 0.
     case Cons(x,xs) => x + sum(xs) // The sum of a list starting with `x` is `x` plus the sum of the rest of the list.
@@ -31,6 +31,8 @@ object List { // `List` companion object. Contains functions for creating and wo
     case _ => 101
   }
 
+  println(x)
+
   def append[A](a1: List[A], a2: List[A]): List[A] =
     a1 match {
       case Nil => a2
@@ -49,12 +51,36 @@ object List { // `List` companion object. Contains functions for creating and wo
   def product2(ns: List[Double]) =
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
+  def tail[A](l: List[A]): List[A] = l match {
+    case Nil | Cons(_, Nil) => Nil
+    case Cons(_, tail) => tail
+  }
 
-  def tail[A](l: List[A]): List[A] = ???
+  assert(tail(Nil) == Nil)
+  assert(tail(List(2)) == Nil)
+  assert(tail(List(3,4,32,1)) == List(4, 32, 1))
 
-  def setHead[A](l: List[A], h: A): List[A] = ???
+  def setHead[A](l: List[A], h: A): List[A] = l match {
+    case Cons(_, tail) => Cons(h, tail)
+    case Nil => Cons(h, Nil)
+  }
 
-  def drop[A](l: List[A], n: Int): List[A] = ???
+  assert(setHead(Nil, 7) == List(7))
+  assert(setHead(List(2), 6) == List(6))
+  assert(setHead(List(3, 4, 32, 1), 12) == List(12, 4, 32, 1))
+
+  def drop[A](l: List[A], n: Int): List[A] = l match {
+    case Nil => l
+    case Cons(_, _) if n > 0 => drop(tail(l), n - 1)
+    case d => d
+  }
+
+  assert(drop(Nil, 2) == Nil)
+  assert(drop(List(1), 2) == Nil)
+  assert(drop(List(3, 4), 2) == Nil)
+  val r = drop(List(5, 6, 7, 8), 2)
+  println("Drop 2: " + r)
+  assert(r == List(7, 8))
 
   def dropWhile[A](l: List[A], f: A => Boolean): List[A] = ???
 
