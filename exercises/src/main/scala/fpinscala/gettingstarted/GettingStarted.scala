@@ -1,5 +1,9 @@
 package fpinscala.gettingstarted
 
+import fpinscala.gettingstarted.MyModule.{abs, factorial, formatResult}
+
+import scala.annotation.tailrec
+
 // A comment!
 /* Another comment */
 /** A documentation comment */
@@ -36,7 +40,14 @@ object MyModule {
 
   // Exercise 1: Write a function to compute the nth fibonacci number
 
-  def fib(n: Int): Int = ???
+  def fib(n: Int): Int = {
+    @annotation.tailrec
+    def fibR(n: Int, prev: Int, cur: Int): Int = n match {
+      case 0 => prev
+      case _ => fibR(n - 1, cur, prev + cur)
+    }
+    fibR(n, 0, 1)
+  }
 
   // This definition and `formatAbs` are very similar..
   private def formatFactorial(n: Int) = {
@@ -140,7 +151,14 @@ object PolymorphicFunctions {
 
   // Exercise 2: Implement a polymorphic function to check whether
   // an `Array[A]` is sorted
-  def isSorted[A](as: Array[A], gt: (A,A) => Boolean): Boolean = ???
+  def isSorted[A](as: Array[A], gt: (A,A) => Boolean): Boolean = {
+    @tailrec
+    def testSort(last: A, i: Int): Boolean = {
+      if (i == as.length - 1) gt(as(i), last)
+      else testSort(as(i), i + 1)
+    }
+    if (as.length <= 1) true else testSort(as(0), 1)
+  }
 
   // Polymorphic functions are often so constrained by their type
   // that they only have one implementation! Here's an example:
@@ -153,13 +171,13 @@ object PolymorphicFunctions {
   // Note that `=>` associates to the right, so we could
   // write the return type as `A => B => C`
   def curry[A,B,C](f: (A, B) => C): A => (B => C) =
-    ???
+    (a: A) => (b: B) => f(a, b)
 
   // NB: The `Function2` trait has a `curried` method already
 
   // Exercise 4: Implement `uncurry`
   def uncurry[A,B,C](f: A => B => C): (A, B) => C =
-    ???
+    (a: A, b: B) => f(a)(b)
 
   /*
   NB: There is a method on the `Function` object in the standard library,
@@ -174,5 +192,14 @@ object PolymorphicFunctions {
   // Exercise 5: Implement `compose`
 
   def compose[A,B,C](f: B => C, g: A => B): A => C =
-    ???
+    (a: A) => f(g(a))
+
+
+  // Some examples of anonymous functions:
+  def main(args: Array[String]): Unit = {
+    println("Empty array is always sorted (expected true): " + isSorted(Array(), (x: Int, y: Int) => x > y))
+    println("Single element array is always sorted (expected true): " + isSorted(Array(3), (x: Int, y: Int) => x > y))
+    println("Is not sorted (expected false): " + isSorted(Array(3, 7, 2, 1, 5, 3), (x: Int, y: Int) => x > y))
+    println("Is sorted (expected true): " + isSorted(Array(1,1,2,2,3,3,4), (x: Int, y: Int) => x > y))
+  }
 }
